@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Secrets et clés
+*.pem
+*.key
+id_*
+!id_*.pub
+.env
+*.secret
+
+# Terraform (étape 3)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+.terraform.lock.hcl.bak
+
+# Identifiants Google Cloud
+*credentials*.json
+*service-account*.json
