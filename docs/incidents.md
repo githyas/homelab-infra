@@ -58,3 +58,27 @@ Chaque incident suit le même format : symptôme, diagnostic, cause, correction,
 
 - **Cause** : les versions récentes de systemd ont besoin de la fonctionnalité LXC `nesting` dans un conteneur non privilégié.
 - **Correction** : `pct set 900 --features nesting=1` sur le modèle, dont tous les clones héritent.
+
+---
+
+## 6. Erreur de signature APT `Not live until …` après une mise en veille
+
+- **Symptôme** : `apt-get update` refuse le dépôt `trixie-security` : la signature est datée « dans le futur ».
+- **Diagnostic** : `chronyc tracking` → `System time : 6146 seconds slow of NTP time` (≈ 1 h 42 de retard).
+- **Cause** : l'horloge de la VM s'arrête quand Fusion la met en pause ou que le Mac se met en veille. Par défaut, chrony ne corrige brutalement l'heure qu'au démarrage, puis rattrape l'écart très lentement.
+- **Correction** :
+  ```bash
+  chronyc makestep                                          # correction immédiate
+  echo "makestep 1 -1" > /etc/chrony/conf.d/lab-makestep.conf
+  systemctl restart chrony                                  # correction automatique à tout moment
+  ```
+- **Leçon** : une horloge fausse casse les signatures, les certificats et la lecture des logs. Le réglage `makestep 1 -1` convient à un lab qui dort souvent ; sur un serveur de production, on préfère éviter les sauts d'heure brutaux.
+
+---
+
+## 7. Une requête en erreur pendant la bascule HAProxy
+
+- **Symptôme** : lors de l'arrêt de web1, la page de stats montre `Errors Conn = 1` et `Retr = 3` sur web1.
+- **Cause** : web1 n'est déclaré `DOWN` qu'après 2 vérifications échouées (jusqu'à 4 s). Pendant ce délai, une requête lui est envoyée ; HAProxy réessaie sur le même serveur, puis abandonne.
+- **Correction** : `retries 3` + `option redispatch` dans `defaults`, puis `systemctl reload haproxy`.
+- **Leçon** : la détection d'une panne n'est jamais instantanée ; il faut prévoir ce que deviennent les requêtes pendant ce délai.

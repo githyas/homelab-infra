@@ -30,7 +30,8 @@ leur résolution.
 ## Avancement
 
 - [x] **Étape 1 — Proxmox** : installation, dépôts, modèle de conteneur Debian 13
-- [ ] **Étape 2 — HAProxy & Squid** : 2 serveurs web, load balancing + health checks, proxy filtrant
+- [x] **Étape 2a — HAProxy** : 2 serveurs web nginx, répartition roundrobin, health checks, bascule sans erreur
+- [ ] **Étape 2b — Squid** : proxy sortant filtrant
 - [ ] **Étape 3 — Terraform** : création des conteneurs Proxmox et d'une VM GCP en code
 - [ ] **Étape 4 — Documentation finale** : schéma, retours d'expérience
 
@@ -57,8 +58,11 @@ Ils conviennent très bien à des services comme nginx, HAProxy ou Squid.
 ```
 .
 ├── README.md
+├── configs/
+│   └── haproxy/haproxy.cfg          # configuration du répartiteur de charge
 ├── docs/
 │   ├── 01-installation-proxmox.md   # pas à pas de l'étape 1
+│   ├── 02-haproxy.md                # plan d'adressage, HAProxy, tests de bascule
 │   └── incidents.md                 # journal des incidents et résolutions
 └── scripts/
     └── create-lxc-template.sh       # recrée le modèle de conteneur 900
@@ -67,4 +71,5 @@ Ils conviennent très bien à des services comme nginx, HAProxy ou Squid.
 ## Documentation
 
 - [Étape 1 — Installation de Proxmox](docs/01-installation-proxmox.md)
+- [Étape 2a — Répartition de charge avec HAProxy](docs/02-haproxy.md)
 - [Journal des incidents](docs/incidents.md)
